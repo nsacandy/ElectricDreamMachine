@@ -1,0 +1,24 @@
+#Create a submission just to make an output file. Work backwords to get that made.
+#Find a way to get all the data into one... thingy. We have many different datatypes. We need to get them as one.
+    Random Forest can do this, apparently.
+    We need to clean the data. We can follow chat GPT's instructions
+    I also need to reference old stuff to pull some pandas info in here
+    
+#Submission 1: Place 2340/2530 - Test Submission
+	Today we entered a submission with nothing but true answers. The primary reason
+	was to get our formatting right in python. Considering that we can make 10 submissions per day,
+	it seemed like a good worthy investment of time.
+
+#Next Step
+	We have many different fields that need analyzing here. We need a way to bundle them and cross-section.
+	I could do a linear regression on any one numeric field, but it seems like it would be a good idea to
+	figure out what fields are the most important to calculate first, or if there is a combination of two.
+	Then we could start figuring out the specifics. I'll do some research into random forests. Also, we need
+	to clean the data. Pandas can tell you if something is NaN and stuff.
+
+#ToThinkAbout
+	We could also do a quick % check of categories with a finite # of fields and just guess on some percentages.
+
+#Submission 2:
+	Up to about 75% by implementing an SKlearn random forest that was suggested in the Titanic new user tutorial.
+	Great Success!
