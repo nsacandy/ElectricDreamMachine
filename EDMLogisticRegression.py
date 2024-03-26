@@ -12,11 +12,13 @@ train_data = pd.read_csv("dev.csv")
 X_train = train_data.drop(columns=['Transported'])
 y_train = train_data['Transported'].astype(int)
 
+
 # Impute missing values using mean strategy
 imputer = SimpleImputer(strategy='mean')
 X_train_imputed = imputer.fit_transform(X_train)
 
-# Scale the data
+"""
+# To do k-fold cross validation, uncomment this section until the comment marked stop
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_imputed)
 
@@ -38,7 +40,7 @@ for train_index, test_index in skf.split(X_train_scaled, y_train):
     
     # Predict on the test fold
     y_pred = model.predict(X_test_fold)
-    
+    print (y_pred)
     # Compute accuracy and store it
     accuracy = accuracy_score(y_test_fold, y_pred)
     accuracy_scores.append(accuracy)
@@ -47,22 +49,22 @@ for train_index, test_index in skf.split(X_train_scaled, y_train):
 average_accuracy = sum(accuracy_scores) / len(accuracy_scores)
 print("Average Accuracy:", average_accuracy)
 
+#STOP
 """
-# Initialize the imputer
-imputer = SimpleImputer(strategy='mean')
 
-# Fit the imputer on the training data and transform it
-X_train_imputed = imputer.fit_transform(X_train)
 
 # Load testing data from CSV
-test_data = pd.read_csv("pretest.csv")
+test_data = pd.read_csv("test.csv")
 
 # Separate features and target variable for testing data
-X_test = test_data.drop(columns=['Transported'])
-y_test = test_data['Transported']
+#X_test = test_data.drop(columns=['Transported'])
+#y_test = test_data['Transported']
 
+features = ["HomePlanet","CryoSleep","Age","Destination","VIP","RoomService","FoodCourt","ShoppingMall","Spa","VRDeck"]
+
+X = pd.get_dummies(test_data[features])
 # Transform the testing data using the same imputer
-X_test_imputed = imputer.transform(X_test)
+X_test_imputed = imputer.transform(X)
 
 # Standardize features using scaler fitted on training data
 scaler = StandardScaler()
@@ -76,10 +78,13 @@ model.fit(X_train_scaled, y_train)
 # Make predictions on testing data
 test_predictions = model.predict(X_test_scaled)
 
-# Evaluate model
-test_accuracy = model.score(X_test_scaled, y_test)
-print("Testing Accuracy:", test_accuracy)
-"""
+test_data['Transported'] = test_predictions.astype(bool)
+
+new_df = test_data[['PassengerId', 'Transported']].copy()
+
+# Save the modified DataFrame back to the CSV file
+new_df.to_csv("fake_submission.csv", index=False)
+
 """
 Results: 
 Before K-fold validation, we are getting  .7998 accuracy. I assume that number will be smaller in K fold cross-validation.
