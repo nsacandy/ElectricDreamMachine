@@ -22,3 +22,7 @@
 #Submission 2:
 	Up to about 75% by implementing an SKlearn random forest that was suggested in the Titanic new user tutorial.
 	Great Success!
+
+#What next for Nic
+	I need an algorithm that will consistently give me k-fold splits and a simple way to use that with my algorithms. I
+	already have split it using the thingy that once. Now I have to take that and implement logistic regression.
