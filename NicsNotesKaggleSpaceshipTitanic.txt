@@ -26,3 +26,12 @@
 #What next for Nic
 	I need an algorithm that will consistently give me k-fold splits and a simple way to use that with my algorithms. I
 	already have split it using the thingy that once. Now I have to take that and implement logistic regression.
+	
+#A step backwards
+    I had to rebuild my dev and pretest files because the algorithm written for me was deleting them, or rather, setting them
+    aside for testing, so they weren't being written for the training algorithm. I rewrote them so they should be good
+    now. I even have my logistic regression file working, but it's only doing 1 big thing and then testing on
+    one small thing. I have to bust it up into 5 parts and get it running.
+    
+    I have commented out the lines that run the logistic regression against the test data and will rewrite it as a k-fold
+    cross validation.
