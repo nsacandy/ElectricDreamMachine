@@ -1,11 +1,11 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import SelectFromModel
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.naive_bayes import GaussianNB
-import numpy as np
 
 # Load the data
 train_data = pd.read_csv("train.csv")
@@ -21,27 +21,21 @@ def process_cabin(data):
     return cabins
 
 # Process the cabin data
-cabin_data = process_cabin(train_data)
+cabin_features = process_cabin(train_data)
 
 # Combine the cabin data back into the original dataframe
-train_data = pd.concat([train_data, cabin_data], axis=1)
+train_data = pd.concat([train_data, cabin_features], axis=1)
 
 # Now drop the original 'Cabin' column
 train_data = train_data.drop(columns=['Cabin'])
 
-# Encode binary categorical features as 0 or 1
-binary_features = ['CryoSleep', 'VIP']
-for column in binary_features:
-    le = LabelEncoder()
-    train_data[column] = le.fit_transform(train_data[column])
-
-# Separate the target variable and drop non-predictive columns
+# Assuming 'Transported' is the target and it's already boolean or binary encoded
 y_train = train_data['Transported'].astype(int)
 X_train = train_data.drop(columns=['Transported', 'PassengerId', 'Name'])  # Assuming 'Name' is non-predictive
 
-# Define categorical and numerical features
-categorical_features = ['HomePlanet', 'Deck', 'Side', 'Destination']  # Updated to include Deck and Side
-numerical_features = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Num']  # Added 'Num'
+# Update categorical and numerical features to include the new 'Cabin' features
+categorical_features = ['HomePlanet', 'Deck', 'Side', 'Destination']  # 'Deck' and 'Side' are new
+numerical_features = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Num']  # 'Num' is new
 
 # Create preprocessing pipelines for both numeric and categorical data
 numeric_transformer = Pipeline(steps=[
@@ -58,27 +52,30 @@ preprocessor = ColumnTransformer(
         ('num', numeric_transformer, numerical_features),
         ('cat', categorical_transformer, categorical_features)])
 
-# Create a preprocessing and modeling pipeline
+# Create a preprocessing and modeling pipeline with feature selection
 pipeline = Pipeline(steps=[('preprocessor', preprocessor),
-                           ('classifier', GaussianNB())])
+                           ('feature_selection', SelectFromModel(RandomForestClassifier(n_estimators=100))),
+                           ('classifier', RandomForestClassifier(random_state=3270))])
 
-# Parameter grid for GaussianNB
-param_grid = {
-    'classifier__var_smoothing': np.logspace(0,-9, num=5)
+# Define the parameter grid for Random Forest
+param_grid_rf = {
+    'classifier__n_estimators': [100, 200, 300],
+    'classifier__max_depth': [10, 20, None],
+    'classifier__min_samples_split': [2, 5, 10],
+    'classifier__min_samples_leaf': [1, 2, 4],
+    'classifier__max_features': ['sqrt', 'log2', None]
 }
 
 # Initialize StratifiedKFold
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=3270)
 
-# Setup GridSearchCV
-grid_search = GridSearchCV(pipeline, param_grid, cv=skf, scoring='accuracy', n_jobs=-1, verbose=1)
-
-# Execute grid search
-grid_search.fit(X_train, y_train)
+# Perform randomized search
+random_search_rf = RandomizedSearchCV(pipeline, param_grid_rf, n_iter=100, cv=skf, verbose=2, n_jobs=-1, random_state=3270)
+random_search_rf.fit(X_train, y_train)
 
 # Get the best score and parameters
-best_score = grid_search.best_score_
-best_params = grid_search.best_params_
+best_score = random_search_rf.best_score_
+best_params = random_search_rf.best_params_
 
 # Print the best score and parameters
 print(f"Best score: {best_score}")
