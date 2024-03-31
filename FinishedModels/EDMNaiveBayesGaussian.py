@@ -8,26 +8,7 @@ from sklearn.naive_bayes import GaussianNB
 import numpy as np
 
 # Load the data
-train_data = pd.read_csv("train.csv")
-
-# Define a function to extract cabin features
-def process_cabin(data):
-    # Split the Cabin column
-    cabins = data['Cabin'].str.split('/', expand=True)
-    # Name the columns
-    cabins.columns = ['Deck', 'Num', 'Side']
-    # Convert 'Num' to numeric
-    cabins['Num'] = pd.to_numeric(cabins['Num'], errors='coerce')
-    return cabins
-
-# Process the cabin data
-cabin_data = process_cabin(train_data)
-
-# Combine the cabin data back into the original dataframe
-train_data = pd.concat([train_data, cabin_data], axis=1)
-
-# Now drop the original 'Cabin' column
-train_data = train_data.drop(columns=['Cabin'])
+train_data = pd.read_csv("dev.csv")
 
 # Encode binary categorical features as 0 or 1
 binary_features = ['CryoSleep', 'VIP']
@@ -37,15 +18,15 @@ for column in binary_features:
 
 # Separate the target variable and drop non-predictive columns
 y_train = train_data['Transported'].astype(int)
-X_train = train_data.drop(columns=['Transported', 'PassengerId', 'Name'])  # Assuming 'Name' is non-predictive
+X_train = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin'])
 
 # Define categorical and numerical features
-categorical_features = ['HomePlanet', 'Deck', 'Side', 'Destination']  # Updated to include Deck and Side
-numerical_features = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Num']  # Added 'Num'
+categorical_features = ['HomePlanet', 'Deck', 'Side', 'Destination']  
+numerical_features = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Num'] 
 
 # Create preprocessing pipelines for both numeric and categorical data
 numeric_transformer = Pipeline(steps=[
-    ('imputer', SimpleImputer(strategy='median')),  # Using median to handle numerical NaNs
+    ('imputer', SimpleImputer(strategy='median')),
     ('scaler', StandardScaler())])
 
 categorical_transformer = Pipeline(steps=[
@@ -76,10 +57,13 @@ grid_search = GridSearchCV(pipeline, param_grid, cv=skf, scoring='accuracy', n_j
 # Execute grid search
 grid_search.fit(X_train, y_train)
 
-# Get the best score and parameters
-best_score = grid_search.best_score_
-best_params = grid_search.best_params_
+cv_results = grid_search.cv_results_
 
-# Print the best score and parameters
-print(f"Best score: {best_score}")
-print(f"Best parameters: {best_params}")
+top5_indices = np.argsort(-cv_results['mean_test_score'])[:5]
+
+# Print out the top 5 scores and their corresponding parameters
+print("Top 5 parameter combinations:")
+for rank, index in enumerate(top5_indices, start=1):
+    print(f"Rank: {rank}")
+    print(f"Score: {cv_results['mean_test_score'][index]}")
+    print(f"Parameters: {cv_results['params'][index]}\n")

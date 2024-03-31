@@ -7,38 +7,19 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
 # Load the data
-train_data = pd.read_csv("dev.csv")
-
-# Define a function to extract cabin features
-def process_cabin(data):
-    # Split the Cabin column
-    cabins = data['Cabin'].str.split('/', expand=True)
-    # Name the columns
-    cabins.columns = ['Deck', 'Num', 'Side']
-    # Convert 'Num' to numeric
-    cabins['Num'] = pd.to_numeric(cabins['Num'], errors='coerce')
-    return cabins
-
-# Process the cabin data
-cabin_features = process_cabin(train_data)
-
-# Combine the cabin data back into the original dataframe
-train_data = pd.concat([train_data, cabin_features], axis=1)
-
-# Now drop the original 'Cabin' column
-train_data = train_data.drop(columns=['Cabin'])
+train_data = pd.read_csv("preprocessed_train.csv")
 
 # Assuming 'Transported' is the target and it's already boolean or binary encoded
 y_train = train_data['Transported'].astype(int)
-X_train = train_data.drop(columns=['Transported', 'PassengerId', 'Name'])  # Assuming 'Name' is non-predictive
+X_train = train_data.drop(columns=['Transported', 'PassengerId', 'Name'])  
 
 # Update categorical and numerical features to include the new 'Cabin' features
-categorical_features = ['HomePlanet', 'Deck', 'Side', 'Destination']  # 'Deck' and 'Side' are new
-numerical_features = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Num']  # 'Num' is new
+categorical_features = ['HomePlanet', 'Deck', 'Side', 'Destination']  
+numerical_features = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Num']  
 
 # Create preprocessing pipelines for both numeric and categorical data
 numeric_transformer = Pipeline(steps=[
-    ('imputer', SimpleImputer(strategy='median')),  # Using median to handle numerical NaNs
+    ('imputer', SimpleImputer(strategy='median')), 
     ('scaler', StandardScaler())])
 
 categorical_transformer = Pipeline(steps=[
