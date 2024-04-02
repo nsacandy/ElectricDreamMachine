@@ -50,7 +50,7 @@ class GaussianNBTransportPredictor:
         self.preprocessor = ColumnTransformer(transformers=[])
         self.pipeline = Pipeline(steps=[('preprocessor', self.preprocessor),
                                         ('classifier', GaussianNB())])
-        self.param_grid = {'classifier__var_smoothing': np.logspace(0, -9, num=5)}
+        self.param_grid = {'classifier__var_smoothing': np.logspace(0, -9, num=1000)}
         self.cv_results_ = None
         self.best_estimator_ = None
 

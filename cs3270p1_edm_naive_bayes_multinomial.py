@@ -64,7 +64,7 @@ class MultinomialNBTransportPredictor:
                                         ('classifier', MultinomialNB())])
 
         self.param_grid = {
-            'classifier__alpha': [0.5, 1.0, 1.5, 2.0],
+            'classifier__alpha': np.logspace(0, -9, num=100),
             'classifier__fit_prior': [True, False]
         }
         self.cv_results_ = None
