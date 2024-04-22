@@ -48,16 +48,11 @@ class LogisticRegressionTransportPredictor:
         """
         Initializes the LogisticRegressionTransportPredictor with pipeline and parameter grid.
         """
-        self.preprocessor = ColumnTransformer(
-            transformers=[])
-        self.pipeline = Pipeline(steps=[('preprocessor', self.preprocessor),
-                                        ('classifier', LogisticRegression(random_state=3270))])
+        self.pipeline = Pipeline(steps=[
+            ('scaler', StandardScaler()),  # All features are now numerical
+            ('classifier', LogisticRegression(random_state=3270))
+        ])
 
-        self.param_grid_lr = {
-            'classifier__C': [0.1, 1, 10, 100],
-            'classifier__solver': ['newton-cg', 'lbfgs', 'liblinear'],
-            'classifier__max_iter': [100, 200, 300]
-        }
         self.param_grid_lr = {
             'classifier__C': [0.1, 1, 10, 100],
             'classifier__solver': ['newton-cg', 'lbfgs', 'liblinear'],
@@ -66,7 +61,7 @@ class LogisticRegressionTransportPredictor:
         self.cv_results_ = None
         self.best_estimator_ = None
 
-    def fit(self, x_train, y_train, categorical_features, numerical_features):
+    def fit(self, x_train, y_train):
         """
         Fits the Logistic Regression model to the provided training data.
 
@@ -79,26 +74,9 @@ class LogisticRegressionTransportPredictor:
         Returns:
         GridSearchCV object after fitting.
         """
-        numeric_transformer = Pipeline(steps=[
-            ('imputer', SimpleImputer(strategy='median')),
-            ('scaler', StandardScaler())])
-
-        categorical_transformer = Pipeline(steps=[
-            ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
-            ('onehot', OneHotEncoder(handle_unknown='ignore'))])
-
-        self.preprocessor = ColumnTransformer(
-            transformers=[
-                ('num', numeric_transformer, []),
-                ('cat', categorical_transformer, [])])
-
-        self.pipeline.named_steps['preprocessor'].transformers = [
-            ('num', numeric_transformer, numerical_features),
-            ('cat', categorical_transformer, categorical_features)
-        ]
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=3270)
         grid_search_lr = GridSearchCV(self.pipeline, self.param_grid_lr,
-            cv=skf, verbose=1, n_jobs=-1, scoring='accuracy')
+                                      cv=skf, verbose=1, n_jobs=-1, scoring='accuracy')
         grid_search_lr.fit(x_train, y_train)
 
         self.cv_results_ = grid_search_lr.cv_results_
@@ -111,22 +89,19 @@ class LogisticRegressionTransportPredictor:
         Prints the top 5 hyperparameter configurations based on cross-validation scores.
         """
         top5_indices = np.argsort(-self.cv_results_['mean_test_score'])[:5]
-
         print("Top 5 parameter combinations:")
         for rank, index in enumerate(top5_indices, start=1):
             print(f"Rank: {rank}")
             print(f"Score: {self.cv_results_['mean_test_score'][index]}")
             print(f"Parameters: {self.cv_results_['params'][index]}\n")
 
+
 # Usage
 if __name__ == "__main__":
-    train_data = pd.read_csv("dev.csv")
+    train_data = pd.read_csv("dummies_train.csv")
     y_train_data = train_data['Transported'].astype(int)
-    x_train_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin'])
-    cat_features = ['HomePlanet', 'Deck', 'Side', 'Destination']
-    num_features = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Num']
-
+    x_train_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin', 'Deck_A', 'Deck_B', 'Deck_C', 'Deck_D', 'Deck_E', 'Deck_F', 'Deck_G', 'Deck_T', 'Num'])
     predictor = LogisticRegressionTransportPredictor()
-    predictor.fit(x_train_data, y_train_data, cat_features, num_features)
+    predictor.fit(x_train_data, y_train_data)
     predictor.print_top5_hyperparameters()
     
