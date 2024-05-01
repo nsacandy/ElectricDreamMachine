@@ -31,7 +31,7 @@ X_scaled = scaler.fit_transform(X)
 X_scaled = np.reshape(X_scaled, (X_scaled.shape[0], 1, X_scaled.shape[1]))
 
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=3270)
 
 # Build the LSTM model
 model = Sequential()

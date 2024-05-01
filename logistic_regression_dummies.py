@@ -100,7 +100,7 @@ class LogisticRegressionTransportPredictor:
 if __name__ == "__main__":
     train_data = pd.read_csv("dummies_train.csv")
     y_train_data = train_data['Transported'].astype(int)
-    x_train_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin', 'Deck_A', 'Deck_B', 'Deck_C', 'Deck_D', 'Deck_E', 'Deck_F', 'Deck_G', 'Deck_T', 'Num'])
+    x_train_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin', 'Deck_A', 'Deck_B', 'Deck_C', 'Deck_D', 'Deck_E', 'Deck_F', 'Deck_G', 'Deck_T', 'Num']])
     predictor = LogisticRegressionTransportPredictor()
     predictor.fit(x_train_data, y_train_data)
     predictor.print_top5_hyperparameters()
