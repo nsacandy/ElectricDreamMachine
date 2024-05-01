@@ -2,8 +2,10 @@
 Random Forest Classifier for Predicting Transportation.
 
 This module implements a Random Forest classifier using scikit-learn's RandomForestClassifier
-for predicting whether individuals are transported based on various one-hot encoded features from the 'dummies_train.csv'
-dataset. It employs hyperparameter optimization using RandomizedSearchCV with StratifiedKFold cross-validation to enhance model performance.
+for predicting whether individuals are transported based on various one-hot
+encoded features from the 'dummies_train.csv'
+dataset. It employs hyperparameter optimization using RandomizedSearchCV
+with StratifiedKFold cross-validation to enhance model performance.
 
 """
 
@@ -108,7 +110,9 @@ class RandomForestTransportPredictor:
 if __name__ == "__main__":
     train_data = pd.read_csv("cs3270p2_thomas_lamont_train1.csv")
     y_train_data = train_data['Transported'].astype(int)
-    x_train_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin', 'Deck_A', 'Deck_B', 'Deck_C', 'Deck_D', 'Deck_E', 'Deck_F', 'Deck_G', 'Deck_T', 'Num'])
+    x_train_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name',
+        'Cabin', 'Deck_A', 'Deck_B', 'Deck_C', 'Deck_D', 'Deck_E',
+        'Deck_F', 'Deck_G', 'Deck_T', 'Num'])
     predictor = RandomForestTransportPredictor()
     predictor.fit_and_optimize(x_train_data, y_train_data)
     predictor.print_top5_results()

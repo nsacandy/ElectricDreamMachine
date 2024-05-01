@@ -2,7 +2,8 @@
 Multilayer Perceptron Classifier for Predicting Transportation.
 
 This module implements a Multilayer Perceptron (MLP) classifier using scikit-learn's MLPClassifier
-for predicting whether individuals are transported based on various one-hot encoded features from the 'dummies_train.csv'
+for predicting whether individuals are transported based on various
+one-hot encoded features from the 'dummies_train.csv'
 dataset. It explores different configurations of hyperparameters to optimize model performance
 using StratifiedKFold cross-validation.
 
@@ -42,7 +43,8 @@ class MLPTransportPredictor:
     Methods
     -------
     __init__(self):
-        Initializes the MLPTransportPredictor with a data processing pipeline and hyperparameter grid.
+        Initializes the MLPTransportPredictor with a data processing pipeline
+        and hyperparameter grid.
 
     fit_and_evaluate(self, x, y, categorical_features, numerical_features):
         Fits the MLP model to the provided training data and evaluates its performance.
@@ -87,7 +89,8 @@ class MLPTransportPredictor:
             ('cat', categorical_transformer, categorical_features)])
     def _evaluate_models(self, features, target):
         """
-        Evaluates the MLP model using a series of hyperparameters configurations, measuring performance using accuracy.
+        Evaluates the MLP model using a series of hyperparameters configurations,
+        measuring performance using accuracy.
         """
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=3270)
 
@@ -122,7 +125,6 @@ class MLPTransportPredictor:
         Allows setting a list of hyperparameters for evaluation.
         """
         self.hyperparameters = hyperparameters
-        
 if __name__ == "__main__":
     train_data = pd.read_csv("cs3270p2_thomas_lamont_train1.csv")
     x_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin'])

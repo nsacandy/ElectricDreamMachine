@@ -2,18 +2,18 @@
 Logistic Regression Classifier for Predicting Transportation.
 
 This module implements a logistic regression classifier using scikit-learn's LogisticRegression
-for predicting whether individuals are transported based on various one-hot encoded features from the 'dummies_train.csv'
+for predicting whether individuals are transported based on various one-hot
+encoded features from the 'dummies_train.csv'
 dataset. It includes hyperparameter tuning using GridSearchCV with StratifiedKFold cross-validation
-to identify the best model parameters, aiming to optimize the classifier's performance on transportation prediction tasks.
+to identify the best model parameters, aiming to optimize
+the classifier's performance on transportation prediction tasks.
 
 """
 
 import pandas as pd
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.impute import SimpleImputer
-from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 import numpy as np
 
@@ -35,10 +35,12 @@ class LogisticRegressionTransportPredictor:
     Methods
     -------
     __init__(self):
-        Initializes the LogisticRegressionTransportPredictor with a data processing pipeline and a parameter grid for model optimization.
+        Initializes the LogisticRegressionTransportPredictor with
+        a data processing pipeline and a parameter grid for model optimization.
 
     fit(self, x_train, y_train):
-        Fits the Logistic Regression model to the provided training data and performs hyperparameter tuning.
+        Fits the Logistic Regression model to the provided
+        training data and performs hyperparameter tuning.
 
     print_top5_hyperparameters(self):
         Prints the top 5 hyperparameter configurations based on cross-validation scores.
@@ -46,7 +48,8 @@ class LogisticRegressionTransportPredictor:
 
     def __init__(self):
         """
-        Initializes the LogisticRegressionTransportPredictor with a pipeline for standardizing the data and optimizing logistic regression parameters.
+        Initializes the LogisticRegressionTransportPredictor with a
+        pipeline for standardizing the data and optimizing logistic regression parameters.
         """
         self.pipeline = Pipeline(steps=[
             ('scaler', StandardScaler()),
@@ -63,7 +66,8 @@ class LogisticRegressionTransportPredictor:
 
     def fit(self, x_train, y_train):
         """
-        Displays the five best sets of parameters found during the hyperparameter tuning process, according to their cross-validation scores.
+        Displays the five best sets of parameters found during
+        the hyperparameter tuning process, according to their cross-validation scores.
         """
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=3270)
         grid_search_lr = GridSearchCV(self.pipeline, self.param_grid_lr,
@@ -91,7 +95,9 @@ class LogisticRegressionTransportPredictor:
 if __name__ == "__main__":
     train_data = pd.read_csv("cs3270p2_thomas_lamont_train1.csv")
     y_train_data = train_data['Transported'].astype(int)
-    x_train_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin', 'Deck_A', 'Deck_B', 'Deck_C', 'Deck_D', 'Deck_E', 'Deck_F', 'Deck_G', 'Deck_T', 'Num']])
+    x_train_data = train_data.drop(columns=
+        ['Transported', 'PassengerId', 'Name', 'Cabin', 'Deck_A', 'Deck_B'
+        , 'Deck_C', 'Deck_D', 'Deck_E', 'Deck_F', 'Deck_G', 'Deck_T', 'Num'])
     predictor = LogisticRegressionTransportPredictor()
     predictor.fit(x_train_data, y_train_data)
     predictor.print_top5_hyperparameters()
