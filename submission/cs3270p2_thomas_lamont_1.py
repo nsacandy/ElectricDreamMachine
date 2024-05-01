@@ -2,10 +2,9 @@
 Logistic Regression Classifier for Predicting Transportation.
 
 This module implements a logistic regression classifier using scikit-learn's LogisticRegression
-for predicting whether individuals are transported based on various features from the 'dev.csv'
-dataset. It performs hyperparameter tuning using GridSearchCV with StratifiedKFold cross-validation
-to identify the best model parameters, addressing classification tasks within the
-transportation dataset.
+for predicting whether individuals are transported based on various one-hot encoded features from the 'dummies_train.csv'
+dataset. It includes hyperparameter tuning using GridSearchCV with StratifiedKFold cross-validation
+to identify the best model parameters, aiming to optimize the classifier's performance on transportation prediction tasks.
 
 """
 
@@ -18,7 +17,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 import numpy as np
 
-__author__ = 'Thomas Lamont, Nic Sacandy, Dillon Emmons'
+__author__ = 'Thomas Lamont'
 __version__ = 'Spring 2024'
 __pylint__ = '2.14.5'
 __pandas__ = '1.4.3'
@@ -26,19 +25,20 @@ __numpy__ = '1.23.1'
 
 class LogisticRegressionTransportPredictor:
     """
-    A class to represent a Logistic Regression model for predicting transportation.
+    A class to represent a Logistic Regression model optimized for predicting transportation status.
 
     Attributes
     ----------
-    None
+    pipeline : Pipeline
+        A processing pipeline that standardizes the data and applies logistic regression.
 
     Methods
     -------
     __init__(self):
-        Initializes the LogisticRegressionTransportPredictor with default values.
+        Initializes the LogisticRegressionTransportPredictor with a data processing pipeline and a parameter grid for model optimization.
 
-    fit(self, x_train, y_train, categorical_features, numerical_features):
-        Fits the Logistic Regression model to the provided training data.
+    fit(self, x_train, y_train):
+        Fits the Logistic Regression model to the provided training data and performs hyperparameter tuning.
 
     print_top5_hyperparameters(self):
         Prints the top 5 hyperparameter configurations based on cross-validation scores.
@@ -46,10 +46,10 @@ class LogisticRegressionTransportPredictor:
 
     def __init__(self):
         """
-        Initializes the LogisticRegressionTransportPredictor with pipeline and parameter grid.
+        Initializes the LogisticRegressionTransportPredictor with a pipeline for standardizing the data and optimizing logistic regression parameters.
         """
         self.pipeline = Pipeline(steps=[
-            ('scaler', StandardScaler()),  # All features are now numerical
+            ('scaler', StandardScaler()),
             ('classifier', LogisticRegression(random_state=3270))
         ])
 
@@ -63,16 +63,7 @@ class LogisticRegressionTransportPredictor:
 
     def fit(self, x_train, y_train):
         """
-        Fits the Logistic Regression model to the provided training data.
-
-        Parameters:
-        x_train (DataFrame): Training features.
-        y_train (Series): Training target variable.
-        categorical_features (list): List of categorical feature names.
-        numerical_features (list): List of numerical feature names.
-
-        Returns:
-        GridSearchCV object after fitting.
+        Displays the five best sets of parameters found during the hyperparameter tuning process, according to their cross-validation scores.
         """
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=3270)
         grid_search_lr = GridSearchCV(self.pipeline, self.param_grid_lr,
@@ -98,7 +89,7 @@ class LogisticRegressionTransportPredictor:
 
 # Usage
 if __name__ == "__main__":
-    train_data = pd.read_csv("dummies_train.csv")
+    train_data = pd.read_csv("cs3270p2_thomas_lamont_train1.csv")
     y_train_data = train_data['Transported'].astype(int)
     x_train_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin', 'Deck_A', 'Deck_B', 'Deck_C', 'Deck_D', 'Deck_E', 'Deck_F', 'Deck_G', 'Deck_T', 'Num']])
     predictor = LogisticRegressionTransportPredictor()

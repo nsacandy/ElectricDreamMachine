@@ -2,7 +2,7 @@
 Multilayer Perceptron Classifier for Predicting Transportation.
 
 This module implements a Multilayer Perceptron (MLP) classifier using scikit-learn's MLPClassifier
-for predicting whether individuals are transported based on various features from the 'dev.csv'
+for predicting whether individuals are transported based on various one-hot encoded features from the 'dummies_train.csv'
 dataset. It explores different configurations of hyperparameters to optimize model performance
 using StratifiedKFold cross-validation.
 
@@ -20,7 +20,7 @@ from sklearn.metrics import accuracy_score
 
 import numpy as np
 
-__author__ = 'Thomas Lamont, Nic Sacandy, Dillon Emmons'
+__author__ = 'Thomas Lamont'
 __version__ = 'Spring 2024'
 __pylint__= '2.14.5'
 __pandas__ = '1.4.3'
@@ -28,27 +28,33 @@ __numpy__ = '1.23.1'
 
 class MLPTransportPredictor:
     """
-    A class to represent an MLP model for predicting transportation.
-
-    ...
+    A class to represent an MLP model for predicting transportation status.
 
     Attributes
     ----------
-    None
+    preprocessor : ColumnTransformer
+        Processes data before feeding it into the MLP.
+    pipeline : Pipeline
+        Manages the flow of data through preprocessing and prediction steps.
+    results : list
+        Stores the hyperparameters and their corresponding evaluation results.
 
     Methods
     -------
     __init__(self):
-        Initializes the MLPTransportPredictor with default values.
-    fit_and_evaluate(self, x, y):
-        Fits the MLP model to the provided training data and evaluates it.
+        Initializes the MLPTransportPredictor with a data processing pipeline and hyperparameter grid.
+
+    fit_and_evaluate(self, x, y, categorical_features, numerical_features):
+        Fits the MLP model to the provided training data and evaluates its performance.
+
     print_results(self):
-        Prints the results of the hyperparameter tuning.
+        Displays the results of the hyperparameter tuning.
     """
     def __init__(self):
         """
-        Initializes the MLPTransportPredictor without specifying the data transformation
-        details, which will be set up in the fit_and_evaluate method.
+        Initializes the MLPTransportPredictor with a data preprocessing pipeline.
+        This preprocessing includes imputation and scaling of numerical data and imputation
+        and one-hot encoding of categorical data.
         """
         self.preprocessor = None
         self.results = []
@@ -57,21 +63,16 @@ class MLPTransportPredictor:
 
     def fit_and_evaluate(self, features, target, categorical_features, numerical_features):
         """
-        Fits the MLP model to the provided training data and evaluates it.
-        Parameters:
-        - features: DataFrame containing the training features.
-        - target: Series containing the target variable.
-        - categorical_features: List of names of the categorical features.
-        - numerical_features: List of names of the numerical features.
+        Initializes the MLPTransportPredictor with a data preprocessing pipeline.
+        This preprocessing includes imputation and scaling of numerical data and imputation
+        and one-hot encoding of categorical data.
         """
         self._setup_preprocessor(categorical_features, numerical_features)
         self._evaluate_models(features, target)
     def _setup_preprocessor(self, categorical_features, numerical_features):
         """
-        Sets up the data preprocessing pipeline.
-        Parameters:
-        - categorical_features: List of names of the categorical features.
-        - numerical_features: List of names of the numerical features.
+        Sets up the data preprocessing pipeline which includes scaling for numerical features and
+        one-hot encoding for categorical features.
         """
         numeric_transformer = Pipeline(steps=[
             ('imputer', SimpleImputer(strategy='mean')),
@@ -86,10 +87,7 @@ class MLPTransportPredictor:
             ('cat', categorical_transformer, categorical_features)])
     def _evaluate_models(self, features, target):
         """
-        Evaluates the MLP model using different sets of hyperparameters.
-        Parameters:
-        - features: DataFrame containing the training features.
-        - target: Series containing the target variable.
+        Evaluates the MLP model using a series of hyperparameters configurations, measuring performance using accuracy.
         """
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=3270)
 
@@ -114,19 +112,19 @@ class MLPTransportPredictor:
 
     def print_results(self):
         """
-        Prints the hyperparameter configurations and their corresponding average accuracy.
+        Prints the hyperparameter configurations and their corresponding average accuracy,
+        ranking them to show the most effective configurations.
         """
         for hyperparams, accuracy in sorted(self.results, key=lambda x: x[1], reverse=True):
             print(f"Hyperparameters: {hyperparams}, Average Accuracy: {accuracy}")
     def set_hyperparameters(self, hyperparameters):
         """
-        Sets the list of hyperparameters to evaluate.
-        Parameters:
-        - hyperparameters: List of dictionaries containing hyperparameters to try.
+        Allows setting a list of hyperparameters for evaluation.
         """
         self.hyperparameters = hyperparameters
+        
 if __name__ == "__main__":
-    train_data = pd.read_csv("dev.csv")
+    train_data = pd.read_csv("cs3270p2_thomas_lamont_train1.csv")
     x_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin'])
     y_data = train_data['Transported'].astype(int)
 

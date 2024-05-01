@@ -1,3 +1,12 @@
+"""
+RNN Classifier for Predicting Transportation.
+
+This module implements a Recurrent Neural Network (RNN) using TensorFlow's Keras API to predict whether individuals are transported
+based on various one-hot encoded features from the 'dummies_train.csv' dataset. It explores different configurations of hyperparameters
+to identify the best model parameters, optimizing the classifier's performance on transportation prediction tasks.
+
+"""
+
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, StratifiedKFold

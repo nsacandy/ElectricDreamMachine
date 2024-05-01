@@ -1,3 +1,8 @@
+"""
+This script implements an ensemble prediction model combining traditional machine learning techniques with deep learning models
+to predict whether passengers are transported based on various features from a CSV dataset.
+"""
+
 import pandas as pd
 import numpy as np
 from sklearn.neural_network import MLPClassifier
@@ -10,14 +15,14 @@ from tensorflow.keras.layers import SimpleRNN, LSTM, Dense, Dropout
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.utils import to_categorical
 
-__author__ = 'Thomas Lamont, Nic Sacandy, Dillon Emmons'
+__author__ = 'Thomas Lamont'
 __version__ = 'Spring 2024'
 __pylint__= '2.14.5'
 __pandas__ = '1.4.3'
 __numpy__ = '1.23.1'
 
-train_data = pd.read_csv("dummies_train.csv")
-test_data = pd.read_csv("dummies_test.csv")
+train_data = pd.read_csv("cs3270p2_thomas_lamont_train1.csv")
+test_data = pd.read_csv("cs3270p2_thomas_lamont_test1.csv")
 
 X_train = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin', 'Deck_A', 'Deck_B', 'Deck_C', 'Deck_D', 'Deck_E', 'Deck_F', 'Deck_G', 'Deck_T', 'Num'])
 y_train = train_data['Transported'].astype(int)
@@ -41,6 +46,7 @@ rf = RandomForestClassifier(n_estimators=200, min_samples_split=10, min_samples_
                             max_features='sqrt', max_depth=10, random_state=3270)
                             
 def create_rnn_model():
+    """Creates and compiles an RNN model."""
     model = Sequential()
     model.add(SimpleRNN(50, input_shape=(X_train_scaled_reshaped.shape[1], X_train_scaled_reshaped.shape[2]), return_sequences=True))
     model.add(Dropout(0.2))
@@ -51,6 +57,7 @@ def create_rnn_model():
     return model
 
 def create_lstm_model():
+    """Creates and compiles an LSTM model."""
     model = Sequential()
     model.add(LSTM(100, input_shape=(X_train_scaled_reshaped.shape[1], X_train_scaled_reshaped.shape[2]), return_sequences=True))
     model.add(Dropout(0.2))
@@ -75,7 +82,6 @@ lstm_model = create_lstm_model()
 rnn_model.fit(X_train_scaled_reshaped, y_train_keras, batch_size=32, epochs=100, verbose=1)
 lstm_model.fit(X_train_scaled_reshaped, y_train_keras, batch_size=32, epochs=50, verbose=1)
 
-# Make predictions using each model
 mlp_pred = mlp_pipeline.predict(X_test)
 logreg_pred = logreg_pipeline.predict(X_test)
 rf_pred = rf_pipeline.predict(X_test)
@@ -88,12 +94,10 @@ lstm_pred = np.argmax(lstm_predictions_proba, axis=-1)
 ensemble_preds = np.array([mlp_pred, logreg_pred, rf_pred, rnn_pred, lstm_pred])
 ensemble_majority_vote = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=ensemble_preds)
 
-# Convert predictions to 'True' or 'False'
 ensemble_majority_vote = np.where(ensemble_majority_vote == 1, 'True', 'False')
 
 submission_df = pd.DataFrame({'PassengerId': test_data['PassengerId'], 'Transported': ensemble_majority_vote})
 
-# Save submission to CSV
 submission_df.to_csv("final_ensemble_submission.csv", index=False)
 
 print("Ensemble submission saved to ensemble_submission.csv")

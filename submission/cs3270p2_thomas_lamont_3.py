@@ -2,9 +2,8 @@
 Random Forest Classifier for Predicting Transportation.
 
 This module implements a Random Forest classifier using scikit-learn's RandomForestClassifier
-for predicting whether individuals are transported based on various features from the 'dev.csv'
-dataset. It employs feature selection and hyperparameter optimization using RandomizedSearchCV
-with StratifiedKFold cross-validation to enhance model performance.
+for predicting whether individuals are transported based on various one-hot encoded features from the 'dummies_train.csv'
+dataset. It employs hyperparameter optimization using RandomizedSearchCV with StratifiedKFold cross-validation to enhance model performance.
 
 """
 
@@ -18,7 +17,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
-__author__ = 'Thomas Lamont, Nic Sacandy, Dillon Emmons'
+__author__ = 'Thomas Lamont'
 __version__ = 'Spring 2024'
 __pylint__ = '2.14.5'
 __pandas__ = '1.4.3'
@@ -30,14 +29,14 @@ class RandomForestTransportPredictor:
 
     Attributes
     ----------
-    preprocessor : ColumnTransformer
-        Preprocesses data before feeding it into the model.
     pipeline : Pipeline
-        Defines the steps for preprocessing, feature selection, and classification.
+        Defines the steps for preprocessing and classification.
+    param_grid_rf : dict
+        Specifies the grid of hyperparameters for RandomizedSearchCV.
 
     Methods
     -------
-    fit_and_optimize(x_train, y_train, categorical_features, numerical_features):
+    fit_and_optimize(x_train, y_train):
         Fits the model to the training data and optimizes hyperparameters.
     print_top5_results():
         Prints the top 5 hyperparameter configurations based on cross-validation scores.
@@ -45,8 +44,8 @@ class RandomForestTransportPredictor:
 
     def __init__(self):
         """
-        Initializes the RandomForestTransportPredictor with pipeline and parameter grid for
-        Random Forest Classifier.
+        Initializes the RandomForestTransportPredictor with a pipeline for standard scaling and
+        a Random Forest classifier, along with a parameter grid for optimizing the classifier.
         """
         numeric_transformer = Pipeline(steps=[
             ('imputer', SimpleImputer(strategy='median')),
@@ -78,27 +77,14 @@ class RandomForestTransportPredictor:
     def fit_and_optimize(self, x_train, y_train):
         """
         Fits the model using the provided training data and optimizes hyperparameters.
-
-        Parameters
-        ----------
-        x_train : DataFrame
-            Training features.
-        y_train : Series
-            Target variable.
-        categorical_features : list
-            Names of the categorical features.
-        numerical_features : list
-            Names of the numerical features.
         """
         self.preprocessor = StandardScaler()
 
-        # Update the pipeline to include the updated preprocessor
         self.pipeline = Pipeline(steps=[
             ('preprocessor', self.preprocessor),
             ('classifier', RandomForestClassifier(random_state=3270))
         ])
 
-        # Continue with your existing code for fitting and searching
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=3270)
         self.random_search_rf = RandomizedSearchCV(
         self.pipeline, self.param_grid_rf, n_iter=100, cv=skf, verbose=2,
@@ -120,7 +106,7 @@ class RandomForestTransportPredictor:
             print(f"Parameters: {self.cv_results_['params'][index]}\n")
 
 if __name__ == "__main__":
-    train_data = pd.read_csv("dummies_train.csv")
+    train_data = pd.read_csv("cs3270p2_thomas_lamont_train1.csv")
     y_train_data = train_data['Transported'].astype(int)
     x_train_data = train_data.drop(columns=['Transported', 'PassengerId', 'Name', 'Cabin', 'Deck_A', 'Deck_B', 'Deck_C', 'Deck_D', 'Deck_E', 'Deck_F', 'Deck_G', 'Deck_T', 'Num'])
     predictor = RandomForestTransportPredictor()
